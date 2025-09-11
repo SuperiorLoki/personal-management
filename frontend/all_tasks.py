@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import requests
 
-API_URL = "http://localhost:8000"
+API_URL = "https://vsqzkfpdmxlnjmopfgde.supabase.co"
 
 def all_tasks():
     response = requests.get(f"{API_URL}/tasks/")
