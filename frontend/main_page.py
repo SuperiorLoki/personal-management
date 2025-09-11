@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 import pandas as pd
 
-API_URL = "http://localhost:8000"
+API_URL = "https://vsqzkfpdmxlnjmopfgde.supabase.co"
 
 def main_screen():
         selected_date = st.date_input("Enter Date", datetime.today(), label_visibility="collapsed")
