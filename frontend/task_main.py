@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import requests
 
-API_URL = "https://vsqzkfpdmxlnjmopfgde.supabase.co"
+API_URL = "https://personal-management-c1qo.onrender.com"
 
 def main_screen_tasks():
     selected_date = st.date_input("Enter Date", datetime.today(), label_visibility="collapsed")
