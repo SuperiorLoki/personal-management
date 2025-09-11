@@ -5,7 +5,7 @@ import plotly.express as px
 import pandas as pd
 
 
-API_URL = "http://localhost:8000"
+API_URL = "https://vsqzkfpdmxlnjmopfgde.supabase.co"
 
 def months():
     response = requests.get(f"{API_URL}/month_breakdown/")
