@@ -3,7 +3,7 @@
 import mysql.connector
 import psycopg2
 from contextlib import contextmanager
-from logging_setup import setup_logger
+from backend.logging_setup import setup_logger
 import streamlit as st
 from psycopg2.extras import RealDictCursor
 
