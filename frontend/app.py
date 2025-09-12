@@ -1,5 +1,4 @@
 import streamlit as st
-
 from frontend.all_tasks import all_tasks
 from frontend.main_page import main_screen
 from frontend.analytics_ui import analytics
