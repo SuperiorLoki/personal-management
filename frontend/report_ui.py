@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 
-API_URL = "https://personal-management-c1qo.onrender.com"
+API_URL = "https://personal-management-1.onrender.com"
 
 def report():
     response = requests.get(f"{API_URL}/report/")
