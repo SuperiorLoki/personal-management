@@ -7,7 +7,7 @@ import plotly.express as px
 pd.set_option("display.float_format", "{:.1f}".format)
 
 
-API_URL = "https://personal-management-c1qo.onrender.com"
+API_URL = "https://personal-management-1.onrender.com"
 
 def analytics():
     col1, col2 = st.columns(2)
