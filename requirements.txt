@@ -1,5 +1,5 @@
 streamlit==1.30.0
-pandas~=2.3.1
+pandas
 plotly==5.9.0
 pytest==7.4.0
 pydantic==1.10.12
