@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import requests
 
-API_URL = "https://personal-management-c1qo.onrender.com"
+API_URL = "https://personal-management-1.onrender.com"
 
 def all_tasks():
     response = requests.get(f"{API_URL}/tasks/")
