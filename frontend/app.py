@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add repo root to sys.path so Python can find frontend
+sys.path.append(os.path.dirname(__file__))
+
 import streamlit as st
 from frontend.all_tasks import all_tasks
 from frontend.main_page import main_screen
