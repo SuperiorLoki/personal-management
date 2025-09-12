@@ -1,11 +1,11 @@
 import streamlit as st
 
-from all_tasks import all_tasks
-from main_page import main_screen
-from analytics_ui import analytics
-from month_analytics import months
-from report_ui import report
-from task_main import main_screen_tasks
+from frontend.all_tasks import all_tasks
+from frontend.main_page import main_screen
+from frontend.analytics_ui import analytics
+from frontend.month_analytics import months
+from frontend.report_ui import report
+from frontend.task_main import main_screen_tasks
 #from user_analytics import user_analytics
 
 col_left, col_center, col_right = st.columns([0.001, 150, 0.001])  # center is slightly wider
