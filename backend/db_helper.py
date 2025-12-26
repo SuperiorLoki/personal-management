@@ -11,9 +11,9 @@ from psycopg2.extras import RealDictCursor
 
 
 # Fetch variables
-USER ="postgres.vsqzkfpdmxlnjmopfgde"
+USER ="postgres.ttvaraaegktnadxbpvkk"
 PASSWORD="Informatics227126"
-HOST="aws-1-us-west-1.pooler.supabase.com"
+HOST="aws-0-us-west-2.pooler.supabase.com"
 PORT=5432
 DBNAME="postgres"
 
@@ -191,5 +191,3 @@ if __name__ == "__main__":
     #     print(record)
     #     print("Monthly summary:")
     #     print(fetch_month())
-
-
