@@ -5,6 +5,11 @@ from datetime import date
 from backend import db_helper
 from typing import List
 from pydantic import BaseModel
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 app = FastAPI()
 
@@ -34,11 +39,14 @@ def get_expense(expense_date: date):
 
 @app.post("/expenses/{expense_date}")
 def add_or_update_expenses(expense_date: date, expenses:List[Expense]):
-    db_helper.delete_expenses_for_date(expense_date)
-    for expense in expenses:
-        db_helper.insert_expense(expense_date, expense.amount, expense.category, expense.notes)
-
-    return {"message": "Expenses updated successfully"}
+    try:
+        db_helper.delete_tasks_for_date(expense_date)
+        for expense in expenses:
+            db_helper.insert_expense(expense_date, expense.amount, expense.category, expense.notes)
+        return {"message": "Expenses updated successfully"}
+    except Exception as e:
+        logger.exception("POST /tasks failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analytics/")
 def get_analytics(date_range: DateRange):
