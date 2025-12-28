@@ -40,12 +40,12 @@ def get_expense(expense_date: date):
 @app.post("/expenses/{expense_date}")
 def add_or_update_expenses(expense_date: date, expenses:List[Expense]):
     try:
-        db_helper.delete_tasks_for_date(expense_date)
+        db_helper.delete_expenses_for_date(expense_date)
         for expense in expenses:
             db_helper.insert_expense(expense_date, expense.amount, expense.category, expense.notes)
         return {"message": "Expenses updated successfully"}
     except Exception as e:
-        logger.exception("POST /tasks failed")
+        logger.exception("POST /task failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analytics/")
