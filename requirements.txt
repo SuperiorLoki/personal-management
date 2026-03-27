@@ -22,3 +22,7 @@ requests==2.31.0
 plotly==5.9.0
 pytest==7.4.0
 mysql-connector-python==9.4.0
+supabase==2.18.1
+pytesseract
+pillow
+opencv-python-headless
