@@ -137,14 +137,14 @@ def scanner():
         date = find_date(text)
         total = find_total(text)
 
+        display_date = date[0] if isinstance(date, list) and len(date) > 0 else ""
         st.subheader("Verify Information")
         with st.form("extraction_results"):
             col1, col2 = st.columns(2)
 
             with col1:
                 final_store = st.text_input("Store Name", value=store)
-                final_date = st.text_input("Date", value=str(date))
-                final_date = final_date[0]
+                final_date = st.text_input("Date", value=display_date)
 
             with col2:
                 final_total = st.number_input("Total Cost ($)", value=float(total) if total else 0.0, step=0.01)
@@ -157,13 +157,16 @@ def scanner():
                     'category': 'Shopping',
                     'notes': final_store
                 }
-                response = requests.post(f"{API_URL}/expenses/{final_date}", json=filtered_expenses)
+                response = requests.post(f"{API_URL}/expenses/{final_date}", json=[filtered_expenses])
                 # st.write(filtered_expenses)
                 if response.status_code == 200:
                     st.balloons()
                     st.success(f"Saved: {final_store} - ${final_total}")
                 else:
-                    st.error(f"Failed to update expenses. Error: {response.text}")
+                    st.error("Failed to update expenses.")
+
+
+
 
 
 
