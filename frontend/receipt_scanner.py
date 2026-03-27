@@ -115,7 +115,6 @@ def check_quality(processed_img):
 API_URL = "https://personal-management-1.onrender.com"
 
 def scanner():
-    st.set_page_config(page_title="Expense Tracker", layout="centered")
 
     st.title("AI Expense Scanner")
     st.markdown("Upload a receipt to automatically extract the store, date, and total cost")
