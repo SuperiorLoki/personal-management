@@ -163,7 +163,7 @@ def scanner():
                     st.balloons()
                     st.success(f"Saved: {final_store} - ${final_total}")
                 else:
-                    st.error("Failed to update expenses.")
+                    st.error(f"Failed to update expenses. Error: {response.text}")
 
 
 
