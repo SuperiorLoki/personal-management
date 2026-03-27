@@ -122,7 +122,7 @@ def scanner():
     uploaded_file = st.file_uploader("Choose a receipt image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         img = Image.open(uploaded_file)
-        st.image(img, caption="Uploaded Receipt", use_container_width=True)
+        st.image(img, caption="Uploaded Receipt", use_column_width=True)
 
         with st.spinner("Analyzing Image..."):
             confidence, garbage_ratio = check_quality(img)
