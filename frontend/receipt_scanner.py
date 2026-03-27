@@ -144,6 +144,7 @@ def scanner():
             with col1:
                 final_store = st.text_input("Store Name", value=store)
                 final_date = st.text_input("Date", value=str(date))
+                final_date = final_date[0]
 
             with col2:
                 final_total = st.number_input("Total Cost ($)", value=float(total) if total else 0.0, step=0.01)
@@ -151,9 +152,18 @@ def scanner():
             submit_button = st.form_submit_button("Save Expense")
 
             if submit_button:
-                st.balloons()
-                st.success(f"Saved: {final_store} - ${final_total}")
-
+                filtered_expenses = {
+                    'amount': final_total,
+                    'category': 'Shopping',
+                    'notes': final_store
+                }
+                response = requests.post(f"{API_URL}/expenses/{final_date}", json=filtered_expenses)
+                # st.write(filtered_expenses)
+                if response.status_code == 200:
+                    st.balloons()
+                    st.success(f"Saved: {final_store} - ${final_total}")
+                else:
+                    st.error("Failed to update expenses.")
 
 
 
