@@ -27,3 +27,6 @@ supabase==2.18.1
 pytesseract
 pillow
 opencv-python-headless
+google-genai==1.2.0
+google-auth==2.38.0
+toml==0.10.2
