@@ -23,30 +23,26 @@ def scanner():
     uploaded_file = st.file_uploader("Choose a receipt image...", type=["jpg", "jpeg", "png", "pdf", "webp", "heic"])
 
     if uploaded_file is not None:
-        with st.status("We are analyzing your receipt...", expanded=True) as status:
-            st.write("Sending image to servers...")
-            api_key = st.secrets["GEMINI_API_KEY"]
-            client = genai.Client(api_key=api_key)
-            img = PIL.Image.open(uploaded_file)
-            st.image(img, caption="Uploaded Receipt", use_column_width=True)
-            response = client.models.generate_content(
-                model="gemini-3.1-flash-lite-preview",
-                contents=[
-                    """Extract store_name, date, and total_cost from this receipt as JSON. For total_cost, extract 
-                    only numerical value. Default values of Unkown, 99/99/9999, and 0.00, if any values are missing. 
-                    If the image is NOT a receipt (e.g., a person, a pet, or a random object), return only this 
-                    JSON: {"error": "invalid_image"}""",
-                    img
-                ]
-            )
-            st.write("Analyzing your data...")
-            raw_text = response.text.strip().replace("```json", "").replace("```", "").strip()
+        api_key = st.secrets["GEMINI_API_KEY"]
+        client = genai.Client(api_key=api_key)
+        img = PIL.Image.open(uploaded_file)
+        st.image(img, caption="Uploaded Receipt", use_column_width=True)
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=[
+                """Extract store_name, date, and total_cost from this receipt as JSON. For total_cost, extract 
+                only numerical value. Default values of Unkown, 99/99/9999, and 0.00, if any values are missing. 
+                If the image is NOT a receipt (e.g., a person, a pet, or a random object), return only this 
+                JSON: {"error": "invalid_image"}""",
+                img
+            ]
+        )
+        raw_text = response.text.strip().replace("```json", "").replace("```", "").strip()
 
-            data = json.loads(raw_text)
-            if "error" in data and data["error"] == "invalid_image":
-                st.error("This doesn't look like a receipt! Please upload a clear photo of your bill.")
-                st.stop()
-            status.update(label="Analysis Complete!", state="complete", expanded=False)
+        data = json.loads(raw_text)
+        if "error" in data and data["error"] == "invalid_image":
+            st.error("This doesn't look like a receipt! Please upload a clear photo of your bill.")
+            st.stop()
         store = data.get("store_name")
         date = data.get("date")
         total = data.get("total_cost")
@@ -73,7 +69,7 @@ def scanner():
                 except:
                     st.error("Invalid date format")
                     st.stop()
-
+                
                 filtered_expenses = {
                     'amount': final_total,
                     'category': 'Shopping',
