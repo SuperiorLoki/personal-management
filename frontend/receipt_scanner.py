@@ -39,7 +39,7 @@ def scanner():
         store = data.get("store_name")
         date = data.get("date")
         total = data.get("total_cost")
-
+        st.write(date)
         display_date = date[0] if isinstance(date, list) and len(date) > 0 else ""
         st.subheader("Verify Information")
         with st.form("extraction_results"):
