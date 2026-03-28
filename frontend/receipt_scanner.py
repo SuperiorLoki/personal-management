@@ -20,6 +20,7 @@ def scanner():
     st.markdown("Upload a receipt to automatically extract the store, date, and total cost")
 
     uploaded_file = st.file_uploader("Choose a receipt image...", type=["jpg", "jpeg", "png", "pdf", "webp", "heic"])
+    st.image(img, caption="Uploaded Receipt", use_column_width=True)
     if uploaded_file is not None:
         api_key = st.secrets["GEMINI_API_KEY"]
         client = genai.Client(api_key=api_key)
