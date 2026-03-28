@@ -23,7 +23,7 @@ def scanner():
     if uploaded_file is not None:
         api_key = st.secrets["GEMINI_API_KEY"]
         client = genai.Client(api_key=api_key)
-        img = PIL.Image.open("resources/rec_2.jpg")
+        img = PIL.Image.open(uploaded_file)
 
         response = client.models.generate_content(
             model="gemini-2.5-flash",
@@ -70,6 +70,7 @@ def scanner():
                         st.error("Failed to update expenses.")
                 except requests.exceptions.RequestException as e:
                     st.error(f"Connection failed: {e}")
+
 
 
 
