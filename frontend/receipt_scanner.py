@@ -39,8 +39,15 @@ def scanner():
         store = data.get("store_name")
         date = data.get("date")
         total = data.get("total_cost")
-        st.write(date)
-        display_date = date[0] if isinstance(date, list) and len(date) > 0 else ""
+        
+        if isinstance(date, list) and len(date) > 0:
+            display_date = date[0]
+        elif isinstance(date, str):
+            display_date = date
+        else:
+            display_date = ""
+            
+            
         st.subheader("Verify Information")
         with st.form("extraction_results"):
             col1, col2 = st.columns(2)
@@ -70,7 +77,6 @@ def scanner():
                         st.error("Failed to update expenses.")
                 except requests.exceptions.RequestException as e:
                     st.error(f"Connection failed: {e}")
-
 
 
 
