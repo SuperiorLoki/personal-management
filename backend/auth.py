@@ -22,11 +22,11 @@ security = HTTPBearer()
 
 def get_password_hash(password: str) -> str:
     # converts a plain password to hash
-    return pwd_context.hash(password)
+    return pwd_context.hash(password[:72])
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     # hash password when user enters it, and check again
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 def create_access_token(data: dict) -> str:
     # Creates the JWT token after a successful login
