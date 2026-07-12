@@ -10,7 +10,7 @@ def report():
     if response.status_code == 200:
         existing_expenses = response.json()
     else:
-        st.error("Failed to retrieve expenses")
+        st.error(f"Render Error {response.status_code}: {response.text}")
         existing_expenses = []
 
     st.header("Full Expenses List")
