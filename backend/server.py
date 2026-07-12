@@ -6,7 +6,7 @@ from backend import db_helper
 from typing import List
 from pydantic import BaseModel, EmailStr
 import logging
-import backend import auth
+from backend import auth
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
