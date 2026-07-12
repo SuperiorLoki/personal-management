@@ -55,7 +55,7 @@ with st.sidebar:
 
 
 def main_screen():
-        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
         selected_date = st.date_input("Enter Date", datetime.today(), label_visibility="collapsed")
         response = requests.get(f"{API_URL}/expenses/{selected_date}", headers=headers)
         if response.status_code == 200:
