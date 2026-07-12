@@ -36,6 +36,10 @@ def analytics():
         }
 
         df = pd.DataFrame(data)
+        if df.empty or "category" not in df.columns:
+            st.info("No expenses found in this date range. Try selecting different dates or add some expenses first!")
+            return
+
         df_sorted = df.sort_values(by="percentage", ascending=False)
 
 
