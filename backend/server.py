@@ -112,7 +112,7 @@ def get_analytics_month(current_user: dict = Depends(auth.get_current_user)):
         raise HTTPException(status_code=500, detail="Failed to retrieve data.")
     return data
 
-@app.get("/report")
+@app.get("/report/")
 def get_reports(current_user: dict = Depends(auth.get_current_user)):
     data = db_helper.fetch_all_records(current_user['id'])
     if data is None:
