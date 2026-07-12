@@ -1,3 +1,4 @@
+'''
 import streamlit as st
 from datetime import datetime
 import requests
@@ -57,7 +58,7 @@ def main_screen_tasks():
                                                key=f"name_{i}_{selected_date}", placeholder=name,
                                                label_visibility="collapsed")
 
-            '''with col2:
+            with col2:
                 if i == 0:
                     st.write("Category")
                 category_input = st.selectbox(label="Category", options=categories, index=categories.index(category),
@@ -66,7 +67,7 @@ def main_screen_tasks():
                 if i == 0:
                     st.write("User")
                 user_input = st.text_input(label="Users", value=user, key = f"user_{i}", label_visibility="collapsed")
-            '''
+            
             with col3:
                 if i == 0:
                     st.write("Notes")
@@ -93,3 +94,4 @@ def main_screen_tasks():
                 st.success("Expenses updated successfully.")
             else:
                 st.error("Failed to update expenses.")
+'''
