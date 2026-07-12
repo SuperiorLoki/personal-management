@@ -110,6 +110,9 @@ def main_screen():
             submit_button = st.form_submit_button()
             if submit_button:
                 filtered_expenses = [expense for expense in expenses if expense['amount']>0.0]
+                if not filtered_expenses:
+                    st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
+                    return
                 response = requests.post(f"{API_URL}/expenses/{selected_date}", json = filtered_expenses, headers=headers)
                 #st.write(filtered_expenses)
                 if response.status_code == 200:
