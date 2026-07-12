@@ -8,10 +8,11 @@ import pandas as pd
 API_URL = "https://personal-management-1.onrender.com"
 
 def months():
-    response = requests.get(f"{API_URL}/month_breakdown/")
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    response = requests.get(f"{API_URL}/month_breakdown/", headers=headers)
     if response.status_code == 200:
         existing_expenses = response.json()
-        #st.write(existing_expenses)
+        st.write(existing_expenses)
     else:
         st.error("Failed to retrieve expenses.")
         existing_expenses = []
