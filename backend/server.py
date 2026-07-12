@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends,status
 from datetime import date
 from backend import db_helper
 from typing import List
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 import logging
 from backend import auth
 
@@ -16,11 +16,11 @@ app = FastAPI()
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., max_length=72)
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str 
+    password: str = Field(..., max_length=72)
 
 class Token(BaseModel):
     access_token: str
