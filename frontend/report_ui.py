@@ -5,7 +5,7 @@ import pandas as pd
 API_URL = "https://personal-management-1.onrender.com"
 
 def report():
-    '''
+    
     token = st.session_state.get('token')
     
     # TEMPORARY DEBUG: Print the first 15 characters of your token to the screen!
@@ -18,7 +18,7 @@ def report():
         st.error(f"Render Error {response.status_code}: {response.text}")
         existing_expenses = []
 
-    '''
+    
     headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
     
     # 1. Print what we are TRYING to send
