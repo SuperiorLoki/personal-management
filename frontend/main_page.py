@@ -44,7 +44,7 @@ if not st.session_state["token"]:
 
     st.stop()
 
-with st.sidebar():
+with st.sidebar:
     st.write(f"Logged in as:\n**{st.session_state['user_email']}**")
     if st.button("Logout"):
         st.session_state["token"] = None
