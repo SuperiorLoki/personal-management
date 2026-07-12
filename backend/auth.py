@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import db_helper
+from backend import db_helper
 import os 
 from dotenv import load_dotenv
 
