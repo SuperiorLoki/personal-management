@@ -1,4 +1,4 @@
-#CRUD (Create, Retrieve, Update, Delete)
+#CRUD (Create, Read, Update, Delete)
 
 import mysql.connector
 import psycopg2
@@ -6,16 +6,18 @@ from contextlib import contextmanager
 from backend.logging_setup import setup_logger
 import streamlit as st
 from psycopg2.extras import RealDictCursor
+import os
+from dotenv import load_dotenv
 
 # Load environment variables from .env
-
+load_dotenv()
 
 # Fetch variables
-USER ="postgres.ttvaraaegktnadxbpvkk"
-PASSWORD="Informatics227126"
-HOST="aws-0-us-west-2.pooler.supabase.com"
-PORT=5432
-DBNAME="postgres"
+USER = os.getenv("DB_USER")
+PASSWORD = os.getenv("DB_PASSWORD")
+HOST = os.getenv("DB_HOST")
+PORT = os.getenv("DB_PORT")
+DBNAME = os.getenv("DB_NAME")
 
 logger = setup_logger('db_helper')
 
@@ -47,51 +49,28 @@ def get_db_cursor(commit=False):
 
 
 
-    # connection = mysql.connector.connect(
-    #     host = "localhost",
-    #     user = "root",
-    #     password = "Coding@2025",
-    #     database="expense_manager"
-    # )
-    #
-    # if connection.is_connected():
-    #     print("Connection Successful")
-    # else:
-    #     print("Failed Connection.")
-    #
-    # cursor = connection.cursor(dictionary=True)
-    # yield cursor
-    #
-    # if commit:
-    #     connection.commit()
-    #
-    # cursor.close()
-    # connection.close()
-
-
-
-def fetch_all_records():
-    logger.info("fetch_all_records called.")
+def fetch_all_records(user_id):
+    logger.info("fetch_all_records called for user {user_id}")
     #This means that the rest of the get_db_cursor() function will run (after the yield statement) after the with
     with get_db_cursor() as cursor:
-        cursor.execute("SELECT * FROM expenses")
+        cursor.execute("SELECT * FROM expenses WHERE user_id = %s", (user_id,))
         expenses = cursor.fetchall()
         return expenses
 
 
 
-def fetch_expenses_for_date(expense_date):
-    logger.info(f"fetch_expenses_for_date called with {expense_date}.")
+def fetch_expenses_for_date(expense_date, user_id):
+    logger.info(f"fetch_expenses_for_date called with {expense_date}, for user {user_id}")
     with get_db_cursor() as cursor:
-        cursor.execute("SELECT * FROM expenses WHERE expense_date = %s", (expense_date,))
+        cursor.execute("SELECT * FROM expenses WHERE expense_date = %s AND user_id = %s", (expense_date, user_id))
         expenses = cursor.fetchall()
         return expenses
 
-def insert_expense(expense_date, amount, category, notes):
-    logger.info(f"insert_expense called for {expense_date} with price: {amount}, category: {category}, notes: {notes}.")
+def insert_expense(expense_date, amount, category, notes, user_id):
+    logger.info(f"insert_expense called for {expense_date} with price: {amount}, category: {category}, notes: {notes}. Called for user {user_id}")
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("INSERT INTO expenses (expense_date, amount, category, notes) VALUES (%s, %s, %s, %s)",
-                       (expense_date, amount, category, notes)
+        cursor.execute("INSERT INTO expenses (expense_date, amount, category, notes, user_id) VALUES (%s, %s, %s, %s, %s)",
+                       (expense_date, amount, category, notes, user_id)
                        )
 
 def delete_expense(ident):
@@ -99,38 +78,33 @@ def delete_expense(ident):
         cursor.execute("DELETE FROM expenses WHERE id = %s",
                        (ident,))
 
-def delete_expenses_for_date(expense_date):
+def delete_expenses_for_date(expense_date, user_id):
     logger.info(f"delete_expenses_for_date called with {expense_date}.")
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("DELETE FROM expenses WHERE expense_date = %s",
-                       (expense_date,))
+        cursor.execute("DELETE FROM expenses WHERE expense_date = %s AND user_id = %s",
+                       (expense_date, user_id))
 
 
-def update_expense(expense_date, amount, category, notes):
-    logger.info(f"update_expenses called for {expense_date} with price: {amount}, category: {category}, notes: {notes}")
+def update_expense(expense_date, amount, category, notes, user_id):
+    logger.info(f"update_expenses called for {expense_date} with price: {amount}, category: {category}, notes: {notes}. Called for user {user_id}")
     with get_db_cursor(commit=True) as cursor:
-        cursor.execute("UPDATE expenses SET amount = %s, category = %s, notes = %s WHERE expense_date = %s",
-                       (amount, category, notes, expense_date)
+        cursor.execute("UPDATE expenses SET amount = %s, category = %s, notes = %s WHERE expense_date = %s AND user_id = %s",
+                       (amount, category, notes, expense_date, user_id)
                        )
 
-def fetch_expense_summary(start_date, end_date):
-    logger.info(f"fetching expense summary called between dates {start_date} and {end_date}.")
+def fetch_expense_summary(start_date, end_date, user_id):
+    logger.info(f"fetching expense summary for user {user_id} called between dates {start_date} and {end_date}.")
     with get_db_cursor() as cursor:
-        cursor.execute("SELECT category, SUM(amount) as Total FROM expenses WHERE expense_date BETWEEN %s and %s GROUP BY category;",
-        (start_date, end_date))
+        cursor.execute("SELECT category, SUM(amount) as Total FROM expenses WHERE user_id = %s AND expense_date BETWEEN %s AND %s GROUP BY category;",
+        (user_id, start_date, end_date))
         data = cursor.fetchall()
         return data
 
-def fetch_month():
+def fetch_month(user_id):
     logger.info(f"fetching month by month summary")
     with get_db_cursor() as cursor:
-        cursor.execute("""
-            SELECT TO_CHAR(expense_date, 'YYYY-MM') AS month,
-                   SUM(amount) AS total_expenses
-            FROM expenses
-            GROUP BY TO_CHAR(expense_date, 'YYYY-MM')
-            ORDER BY month;
-        """)
+        cursor.execute(f"SELECT TO_CHAR(expense_date, 'YYYY-MM') AS month, SUM(amount) AS total_expenses FROM expenses WHERE user_id = %s GROUP BY TO_CHAR(expense_date, 'YYYY-MM') ORDER BY month;", 
+                       (user_id,))
         data = cursor.fetchall()
         return data
 
@@ -167,6 +141,22 @@ def insert_task(task_date, task_name, task_status, notes):
         cursor.execute("INSERT INTO tasks (task_date, task_name, task_status, notes) VALUES (%s, %s, %s, %s)",
                        (task_date, task_name, task_status, notes)
                        )
+        
+def create_user(email, hashed_password):
+    logger.info(f"Creating new user in database: {email}")
+    with get_db_cursor(commit=True) as cursor:
+        cursor.execute(
+            "INSERT INTO users (email, hashed_password) VALUES (%s, %s) RETURNING id;",
+            (email, hashed_password)
+        )
+        new_id = cursor.fetchone()['id']
+        return new_id
+    
+def get_user_by_email(email):
+    with get_db_cursor() as cursor:
+        cursor.execute("SELECT * FROM users WHERE email = %s;", (email,))
+        return cursor.fetchone()
+    
 
 '''
 def fetch_user():
@@ -191,3 +181,5 @@ if __name__ == "__main__":
     #     print(record)
     #     print("Monthly summary:")
     #     print(fetch_month())
+
+
