@@ -18,11 +18,15 @@ def analytics():
         end_date = st.date_input(label="End Date", value=datetime(2024, 8, 5))
 
     if st.button("Get Analytics"):
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
         payload = {
             "start_date": start_date.strftime("%Y-%m-%d"),
             "end_date": end_date.strftime("%Y-%m-%d")
         }
-        response = requests.post(f"{API_URL}/analytics/", json=payload)
+        response = requests.post(f"{API_URL}/analytics/", json=payload, headers=headers)
+        if response.status_code != 200:
+            st.error("Failed to retrieve analytics. Please make sure you are logged in.")
+            return
         response = response.json()
 
         data = {
