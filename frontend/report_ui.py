@@ -15,5 +15,8 @@ def report():
 
     st.header("Full Expenses List")
     df = pd.DataFrame(existing_expenses)
+    if df.empty:
+        st.info("No expenses recorded yet. Head over to the Add/Update tab or the Scanner to add your first receipt!")
+        return
     df = df.drop('id', axis=1)
     st.write(df)
