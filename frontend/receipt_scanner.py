@@ -64,6 +64,7 @@ def scanner():
             submit_button = st.form_submit_button("Save Expense")
 
             if submit_button:
+                headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
                 try:
                     api_date_format = pd.to_datetime(final_date).strftime('%Y-%m-%d')
                 except:
@@ -76,7 +77,7 @@ def scanner():
                     'notes': final_store
                 }
                 try:
-                    response = requests.post(f"{API_URL}/expenses/{api_date_format}", json=[filtered_expenses])
+                    response = requests.post(f"{API_URL}/expenses/{api_date_format}", json=[filtered_expenses], headers=headers)
                     # st.write(filtered_expenses)
                     if response.status_code == 200:
                         st.balloons()
