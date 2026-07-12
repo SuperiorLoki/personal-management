@@ -5,6 +5,10 @@ import pandas as pd
 API_URL = "https://personal-management-1.onrender.com"
 
 def report():
+    token = st.session_state.get('token')
+    
+    # TEMPORARY DEBUG: Print the first 15 characters of your token to the screen!
+    st.write(f"🔑 Current Token in Memory: {str(token)[:15]}...")
     headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
     response = requests.get(f"{API_URL}/report/")
     if response.status_code == 200:
