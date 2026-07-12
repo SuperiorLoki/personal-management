@@ -19,6 +19,9 @@ def months():
 
 
     df = pd.DataFrame(existing_expenses)
+    if df.empty or "month" not in df.columns:
+        st.info("No monthly expense data found yet. Add some expenses first.")
+        return 
     new_months = []
     for month in df["month"]:
         date_obj = datetime.strptime(month, "%Y-%m")
