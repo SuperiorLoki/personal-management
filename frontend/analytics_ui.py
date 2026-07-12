@@ -18,7 +18,7 @@ def analytics():
         end_date = st.date_input(label="End Date", value=datetime(2024, 8, 5))
 
     if st.button("Get Analytics"):
-        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
         payload = {
             "start_date": start_date.strftime("%Y-%m-%d"),
             "end_date": end_date.strftime("%Y-%m-%d")
