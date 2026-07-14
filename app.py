@@ -64,7 +64,7 @@ with st.sidebar:
         st.rerun()
 
 st.title("Expense Tracking System")
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner", "Chat With AI"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner", "Chat With AI"])
 
 with tab1:
     main_screen()
