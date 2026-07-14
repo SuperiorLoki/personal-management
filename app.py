@@ -63,23 +63,29 @@ with st.sidebar:
         
         st.rerun()
 
-st.title("Expense Tracking System")
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner", "Chat With AI"])
 
-with tab1:
+st.sidebar.title("💳 Expense Tracker")
+page = st.sidebar.radio("Navigation", [
+    "Add/Update", 
+    "Analytics", 
+    "Month by Month Breakdown", 
+    "Report", 
+    "Scanner", 
+    "Chat with AI"
+])
+
+if page == "Add/Update":
     main_screen()
-with tab2:
+elif page == "Analytics":
     analytics()
-with tab3:
+elif page == "Month by Month Breakdown":
     months()
-with tab4:
+elif page == "Report":
     report()
-with tab5:
+elif page == "Scanner":
     scanner()
-with tab6:
+elif page == "Chat with AI":
     ai_chat()
-
-    #
 
 
 
@@ -91,4 +97,3 @@ with tab6:
 #         st.subheader("UCSD Links")
 #     with tab2:
 #         st.subheader("Career-Related Links")
-
