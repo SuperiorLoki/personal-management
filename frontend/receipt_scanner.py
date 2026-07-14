@@ -45,49 +45,89 @@ def scanner():
             st.stop()
         store = data.get("store_name")
         date = data.get("date")
-        total = data.get("total_cost")
+        AI_total = data.get("total_cost")
 
         display_date = date[0] if isinstance(date, list) and date else str(date or "")
+        total = 0.0
+        if total:
+            try:
+                total = float(str(total).replace("$", "").strip())
+            except ValueError:
+                total = 0.0
 
+        st.divider()
 
-        st.subheader("Verify Information")
-        with st.form("extraction_results"):
-            col1, col2 = st.columns(2)
+        verify_tab, saver_tab = st.tabs(["Verify Information", "AI Price Saver"])
+        with verify_tab:
+            with st.form("extraction_results"):
+                col1, col2 = st.columns(2)
 
-            with col1:
-                final_store = st.text_input("Store Name", value=store)
-                final_date = st.text_input("Date", value=display_date)
+                with col1:
+                    final_store = st.text_input("Store Name", value=store)
+                    final_date = st.text_input("Date", value=display_date)
 
-            with col2:
-                final_total = st.number_input("Total Cost ($)", value=float(total) if total else 0.0, step=0.01)
+                with col2:
+                    final_total = st.number_input("Total Cost ($)", value=float(total) if total else 0.0, step=0.01)
 
-            submit_button = st.form_submit_button("Save Expense")
+                submit_button = st.form_submit_button("Save Expense")
 
-            if submit_button:
-                headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
-                try:
-                    api_date_format = pd.to_datetime(final_date).strftime('%Y-%m-%d')
-                except:
-                    st.error("Invalid date format")
-                    st.stop()
-                
-                filtered_expenses = {
-                    'amount': final_total,
-                    'category': 'Shopping',
-                    'notes': final_store
-                }
-                try:
-                    response = requests.post(f"{API_URL}/expenses/{api_date_format}", json=[filtered_expenses], headers=headers)
-                    # st.write(filtered_expenses)
-                    if response.status_code == 200:
-                        st.balloons()
-                        st.success(f"Saved: {final_store} - ${final_total}")
-                    else:
-                        st.error(f"Failed to update expenses. Status Code: {response.status_code}")
-                except requests.exceptions.RequestException as e:
-                    st.error(f"Connection failed: {e}")
+                if submit_button:
+                    headers = {"Authorization": f"Bearer {st.session_state.get('token')}"}
+                    try:
+                        api_date_format = pd.to_datetime(final_date).strftime('%Y-%m-%d')
+                    except:
+                        st.error("Invalid date format")
+                        st.stop()
 
+                    filtered_expenses = {
+                        'amount': final_total,
+                        'category': 'Shopping',
+                        'notes': final_store
+                    }
+                    try:
+                        response = requests.post(f"{API_URL}/expenses/{api_date_format}", json=[filtered_expenses], headers=headers)
+                        # st.write(filtered_expenses)
+                        if response.status_code == 200:
+                            st.balloons()
+                            st.success(f"Saved: {final_store} - ${final_total}")
+                        else:
+                            st.error(f"Failed to update expenses. Status Code: {response.status_code}")
+                    except requests.exceptions.RequestException as e:
+                        st.error(f"Connection failed: {e}")
+        with saver_tab:
+            st.markdown("Did you overpay?")
+            st.write("Enter your location below. Our AI will re-examine the items and give you cheaper prices from other stores in your area!")
+            col_loc, col_btn = st.columns([2,1])
+            with col_loc:
+                location = st.text_input("City or Zip Code", placeholder="e.g., San Diego, CA or 92101")
+            with col_btn:
+                check_prices = st.button("Find Cheaper Prices Nearby", use_container_width=True)
 
+            if check_prices:
+                if not location:
+                    st.warning("Please enter a city name or Zip code")
+                else:
+                    with st.spinner(f"Analyzing individual items and checking prices..."):
+                        try:
+                            price_response = client.models.generate_content(
+                                model="gemini-3.1-flash-lite-preview",
+                                contents=[
+                                    f"""You are an expert personal finance and shopping advisor. 
+                                    Look at the individual items and prices listed on this receipt from {store or 'this store'}. 
+                                    The user lives in or near: {location}.
+                                    
+                                    Please provide a clean, helpful analysis formatted in Markdown:
+                                    1. **Price Evaluation:** Did they pay high, average, or low prices for these types of goods in {location}? Call out 1 or 2 specific items if they seem overpriced.
+                                    2. **Cheaper Competitors:** Recommend 2 to 3 alternative grocery stores or retail chains in {location} (e.g., Aldi, Trader Joe's, WinCo, Walmart, local ethnic markets) where they could likely buy these same items for less.
+                                    3. **Actionable Tip:** Give 1 quick budgeting tip specific to saving money on these specific items next time.
+                                    Keep the tone encouraging, concise, and easy to read.""",
+                                    img
+                                ]
+                            )
+                            st.info(f"**Local Market Analysis for**: {location}")
+                            st.markdown(price_response.text)
+                        except Exception as e:
+                            st.error(f"Failed to generate price comparison: {e}")
 
 
 
