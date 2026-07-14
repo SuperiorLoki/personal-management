@@ -15,8 +15,8 @@ def ai_chat():
         ]
     
     for message in st.session_state["chat_messages"]:
-        with st.chat_message(message("role")):
-            st.markdown(message(["content"]))
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
     if user_question := st.chat_input("Ask a question about your spending..."):
         st.session_state["chat_messages"].append({"role": "user", "content": user_question})
@@ -64,7 +64,7 @@ def ai_chat():
                     reply_text = ai_response.text
                     st.markdown(reply_text)
 
-                    st.session_state["chat_messages"].append({"role": "assitant", "content": reply_text})
+                    st.session_state["chat_messages"].append({"role": "assistant", "content": reply_text})
                 except Exception as e:
                     error_msg = f"Sorry, I ran into an error connecting to Gemini: {e}"
                     st.error(error_msg)
