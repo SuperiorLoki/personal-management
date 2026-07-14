@@ -5,6 +5,7 @@ from frontend.analytics_ui import analytics
 from frontend.month_analytics import months
 from frontend.receipt_scanner import scanner
 from frontend.report_ui import report
+from frontend.chat_ui import ai_chat
 #from user_analytics import user_analytics
 
 col_left, col_center, col_right = st.columns([0.001, 150, 0.001])  # center is slightly wider
@@ -63,7 +64,7 @@ with st.sidebar:
         st.rerun()
 
 st.title("Expense Tracking System")
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner", "Chat With AI"])
 
 with tab1:
     main_screen()
@@ -75,6 +76,8 @@ with tab4:
     report()
 with tab5:
     scanner()
+with tab6:
+    ai_chat()
 
     #
 
