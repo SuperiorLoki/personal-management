@@ -14,7 +14,7 @@ def ai_chat():
             {"role": "assistant", "content": "Hi! I'm your personal financial analyst. Ask me questions like: *'How much did I spend on Food this month?'* or *'What is my single most expensive purchase?'*"}
         ]
     
-    for message in st.sesssion_state["chat_messages"]:
+    for message in st.session_state["chat_messages"]:
         with st.chat_message(message("role")):
             st.markdown(message(["content"]))
 
