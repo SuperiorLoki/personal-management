@@ -112,15 +112,19 @@ def scanner():
                             price_response = client.models.generate_content(
                                 model="gemini-3.1-flash-lite-preview",
                                 contents=[
-                                    f"""You are an expert personal finance and shopping advisor. 
-                                    Look at the individual items and prices listed on this receipt from {store or 'this store'}. 
+                                    f"""You are a concise, smart local shopping assistant. 
+                                    Read the individual items and prices on this receipt from {store or 'this store'}. 
                                     The user lives in or near: {location}.
                                     
-                                    Please provide a clean, helpful analysis formatted in Markdown:
-                                    1. **Price Evaluation:** Did they pay high, average, or low prices for these types of goods in {location}? Call out 1 or 2 specific items if they seem overpriced.
-                                    2. **Cheaper Competitors:** Recommend 2 to 3 alternative grocery stores or retail chains in {location} (e.g., Aldi, Trader Joe's, WinCo, Walmart, local ethnic markets) where they could likely buy these same items for less.
-                                    3. **Actionable Tip:** Give 1 quick budgeting tip specific to saving money on these specific items next time.
-                                    Keep the tone encouraging, concise, and easy to read.""",
+                                    Provide a brief, scannable Markdown response with NO introductory filler:
+                                    
+                                    1. **⚡ Quick Verdict:** 1 simple sentence stating if they overpaid for this area and naming the single most overpriced item on the receipt.
+                                    2. **📍 Where to Buy Cheaper in {location}:** A bulleted list of the top 2-3 alternative grocery stores or retail chains near them (e.g., Aldi, Trader Joe's, WinCo, Walmart, local markets). For each store, include:
+                                       - **The Store Name** (bolded)
+                                       - **What to buy there:** Which specific items from their receipt to switch to this store.
+                                       - **Estimated Price:** What those items typically cost there compared to what they just paid.
+                                    
+                                    Keep the entire response short, direct, and focused 100% on the local store alternatives.""",
                                     img
                                 ]
                             )
