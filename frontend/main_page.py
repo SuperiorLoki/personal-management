@@ -6,6 +6,11 @@ import pandas as pd
 API_URL = "https://personal-management-1.onrender.com"
 
 def main_screen():
+        
+        if "token" not in st.session_state:
+            st.warning("🔒 Please log in to view and add expenses.")
+            return
+        
         headers = {"Authorization": f"Bearer {st.session_state['token']}"}
         selected_date = st.date_input("Enter Date", datetime.today(), label_visibility="collapsed")
         response = requests.get(f"{API_URL}/expenses/{selected_date}", headers=headers)
@@ -19,7 +24,7 @@ def main_screen():
 
 
         if existing_expenses:
-            df_data=[{"Notes": expense["notes"], "Category": expense["category"], "Amount": expense[amount]} for expense in existing_expenses]
+            df_data=[{"Notes": expense["notes"], "Category": expense["category"], "Amount": expense["amount"]} for expense in existing_expenses]
             df = pd.DataFrame(df_data)
         else:
             df = pd.DataFrame([{"Notes": "", "Category": "Shopping", "Amount": 0.0}])
