@@ -117,7 +117,7 @@ def main_screen():
                     st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
                     return
                 
-'''
+
 
 st.title("Expense Tracking System")
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner"])
@@ -125,4 +125,4 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Mon
 with tab1:
     main_screen()
 with tab2:
-    analytics_ui()
+    analytics_ui()'''
