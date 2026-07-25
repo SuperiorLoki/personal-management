@@ -31,7 +31,7 @@ def main_screen():
         #users = users_list()
         expenses = []
         with st.form(key=f"expense_form_{selected_date}"):
-            for i in range(5):
+            for i in range(row_count):
                 if i < len(existing_expenses):
                     amount = existing_expenses[i]["amount"]
                     category = existing_expenses[i]["category"]
@@ -77,6 +77,10 @@ def main_screen():
                 add_row_button = st.form_submit_button("Add Row")
             with col_button2:
                 submit_button = st.form_submit_button("Save Expenses", type="primary")
+            
+            if add_row_button:
+                st.session_state[row_state_key] += 1
+                st.rerun()
 
             if submit_button:
                 filtered_expenses = [expense for expense in expenses if expense['amount']>0.0]
