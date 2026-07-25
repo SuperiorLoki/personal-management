@@ -83,6 +83,12 @@ def main_screen():
                 if not filtered_expenses:
                     st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
                     return
+                else:
+                    response = requests.post(f"{API_URL}/expenses/{selected_date}", json=filtered_expenses, headers=headers)
+                    if response.status_code == 200:
+                        st.success("Expenses updated successfully.")
+                    else:
+                        st.error("Failed to update expenses.")
                 
 '''
 
