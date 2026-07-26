@@ -108,7 +108,6 @@ def scanner():
                         st.error(f"Connection failed: {e}")
         with saver_tab:
             st.markdown("Did you overpay?")
-            st.write(data)
             st.write("Enter your location below. Our AI will re-examine the items and give you cheaper prices from other stores in your area!")
             col_loc, col_btn = st.columns([2,1])
             with col_loc:
@@ -139,10 +138,7 @@ def scanner():
                             
                             price_response = client.models.generate_content(
                                 model="gemini-3.1-flash-lite-preview",
-                                contents=[prompt,img],
-                                config=types.GenerateContentConfig(
-                                    tools=[{"google_search": {}}]
-                                )
+                                contents=[prompt,img]
                             )
 
                             st.info(f"**Local Market Analysis for**: {location}")
