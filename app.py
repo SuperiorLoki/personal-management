@@ -29,26 +29,36 @@ def auth_screen():
             email = st.text_input("Email", key="login_email")
             password = st.text_input("Password", type="password", key="login_password")
             if st.form_submit_button("Login"):
-                res = requests.post(f"{API_URL}/login", json={"email": email, "password": password})
-                if res.status_code == 200:
-                    st.session_state["token"] = res.json()["access_token"]
-                    st.session_state["user_email"] = email
-                    st.success("Log In Success!")
-                    st.rerun()
-                else:
-                    st.error("Invalid email or password.")
+                with st.status("Booting up server... (This may take a while)"):
+                    st.write("Waking up backend...")
+                    st.write("Establishing database connection...")
+                    try:
+                        res = requests.post(f"{API_URL}/login", json={"email": email, "password": password})
+                        if res.status_code == 200:
+                            status.update(label="Server online! Logging you in...", state="complete", expanded=False)
+                            st.session_state["token"] = res.json()["access_token"]
+                            st.session_state["user_email"] = email
+                            st.success("Log In Success!")
+                            st.rerun()
+                        else:
+                            st.error("Invalid email or password.")
+                        
+                    except requests.exceptions.RequestException as e:
+                        status.update(label="Connection Error.", state="error", expanded=True)
+                        st.error("The server took too long to wake up. Please try clicking Login again!")
     with tab2:
         with st.form("signup_form"):
             new_email = st.text_input("Email", key="signup_email")
             new_password = st.text_input("Password", type="password", key="signup_password")
 
             if st.form_submit_button("Create Account"):
-                res = requests.post(f"{API_URL}/register", json={"email": new_email, "password": new_password})
+                with st.spinner("Creating account..."):
+                    res = requests.post(f"{API_URL}/register", json={"email": new_email, "password": new_password})
 
-                if res.status_code == 201:
-                    st.success("Account Created! Please switch to the Login tab to login.")
-                else:
-                    st.error("Failed to create account. That email might already be registered.")
+                    if res.status_code == 201:
+                        st.success("Account Created! Please switch to the Login tab to login.")
+                    else:
+                        st.error("Failed to create account. That email might already be registered.")
 
 if not st.session_state["token"]:
     auth_screen()
@@ -64,7 +74,7 @@ with st.sidebar:
         st.rerun()
 
 
-st.sidebar.title("💳 Expense Tracker")
+st.sidebar.title("Expense Tracker")
 page = st.sidebar.radio("Navigation", [
     "Add/Update", 
     "Analytics", 
