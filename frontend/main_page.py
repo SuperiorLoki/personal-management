@@ -98,12 +98,15 @@ def main_screen():
                     st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
                     return
                 else:
-                    response = requests.post(f"{API_URL}/expenses/{selected_date}", json=clean_payload, headers=headers)
-                    if response.status_code == 200:
-                        st.success("Expenses updated successfully.")
-                        st.rerun()
-                    else:
-                        st.error("Failed to update expenses.")
+                    with st.spinner("Saving expenses to database..."):
+                        response = requests.post(f"{API_URL}/expenses/{selected_date}", json=clean_payload, headers=headers)
+                        if response.status_code == 200:
+                            st.success("Expenses updated successfully.")
+                            if row_state_key in st.session_state:
+                                del st.session_state[row_state_key]
+                            st.rerun()
+                        else:
+                            st.error("Failed to update expenses.")
 
 '''
 st.title("Expense Tracking System")
