@@ -33,11 +33,11 @@ def scanner():
         Analyze the attached receipt image and extract the key information.
         
         Return EXACTLY a valid JSON object with the following keys and no other text or markdown formatting:
-        
         {
-            "amount": (The final grand total on the receipt as a float, e.g. 45.99. Do not include currency symbols),
-            "category": (You MUST categorize the purchase into exactly one of these strings: "Rent", "Food", "Shopping", "Entertainment", "Travel", "Other". Map grocery stores and restaurants to "Food", retail to "Shopping", flights/gas to "Travel", etc.),
-            "notes": (The name of the store or merchant. If not clearly visible, provide a 1-2 word summary of what was bought)
+            "amount": (The final grand total on the receipt as a float. Do not include currency symbols),
+            "category": (MUST be one of: "Rent", "Food", "Shopping", "Entertainment", "Travel", "Other"),
+            "store_name": (The name of the store or merchant),
+            "date": (The date on the receipt in YYYY-MM-DD format. If no date is visible, use today's date)
         }
         """
         response = client.models.generate_content(
@@ -50,9 +50,9 @@ def scanner():
         if "error" in data and data["error"] == "invalid_image":
             st.error("This doesn't look like a receipt! Please upload a clear photo of your bill.")
             st.stop()
-        store = data.get("store_name")
-        date = data.get("date")
-        AI_total = data.get("total_cost")
+        store = data.get("store_name", "")
+        date = data.get("date", datetime.today().strftime('%Y-%m-%d'))
+        category_str = data.get("category", "Shopping")
 
         display_date = date[0] if isinstance(date, list) and date else str(date or "")
         total = 0.0
@@ -67,14 +67,17 @@ def scanner():
         verify_tab, saver_tab = st.tabs(["Verify Information", "AI Price Saver"])
         with verify_tab:
             with st.form("extraction_results"):
-                col1, col2 = st.columns(2)
+                col1, col2, col3 = st.columns(3)
 
                 with col1:
                     final_store = st.text_input("Store Name", value=store)
                     final_date = st.text_input("Date", value=display_date)
-
                 with col2:
                     final_total = st.number_input("Total Cost ($)", value=float(total) if total else 0.0, step=0.01)
+                with col3:
+                    categories = ["Rent", "Food", "Shopping", "Entertainment", "Travel", "Other"]
+                    safe_idx = categories.index(category_str) if category_str in categories else 2
+                    final_category = st.selectbox("Category", options=categories, index=safe_idx)
 
                 submit_button = st.form_submit_button("Save Expense")
 
@@ -88,7 +91,7 @@ def scanner():
 
                     filtered_expenses = {
                         'amount': final_total,
-                        'category': 'Shopping',
+                        'category': final_category,
                         'notes': final_store
                     }
                     try:
