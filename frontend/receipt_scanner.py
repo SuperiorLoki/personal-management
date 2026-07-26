@@ -56,7 +56,7 @@ def scanner():
 
 
         display_date = date[0] if isinstance(date, list) and date else str(date or "")
-        total = 0.0
+        total = data.get("amount")
         if total:
             try:
                 total = float(str(total).replace("$", "").strip())
