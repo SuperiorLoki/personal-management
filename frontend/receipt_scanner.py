@@ -62,7 +62,7 @@ def scanner():
                 total = float(str(total).replace("$", "").strip())
             except ValueError as e:
                 st.write(e)
-                total = 0.0
+                total = 999.999
 
         st.divider()
 
