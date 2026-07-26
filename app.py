@@ -29,7 +29,7 @@ def auth_screen():
             email = st.text_input("Email", key="login_email")
             password = st.text_input("Password", type="password", key="login_password")
             if st.form_submit_button("Login"):
-                with st.status("Booting up server... (This may take a while)"):
+                with st.status("Booting up server... (This may take a while)", expanded=True) as status:
                     st.write("Waking up backend...")
                     st.write("Establishing database connection...")
                     try:
@@ -74,7 +74,7 @@ with st.sidebar:
         st.rerun()
 
 
-st.sidebar.title("Expense Tracker")
+st.sidebar.title("💳 Expense Tracker")
 page = st.sidebar.radio("Navigation", [
     "Add/Update", 
     "Analytics", 
