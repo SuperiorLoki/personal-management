@@ -34,8 +34,8 @@ def scanner():
         
         Return EXACTLY a valid JSON object with the following keys and no other text or markdown formatting:
         {
-            "amount": (The final grand total on the receipt as a float. Do not include currency symbols),
-            "category": (MUST be one of: "Rent", "Food", "Shopping", "Entertainment", "Travel", "Other"),
+            "amount": (The final grand total on the receipt as a float. Do not include currency symbols. Should be just the float value),
+            "category": (MUST be one of: "Rent", "Shopping", "Entertainment", "Travel", "Other"),
             "store_name": (The name of the store or merchant),
             "date": (The date on the receipt in YYYY-MM-DD format. If no date is visible, use today's date)
         }
@@ -54,12 +54,14 @@ def scanner():
         date = data.get("date", datetime.today().strftime('%Y-%m-%d'))
         category_str = data.get("category", "Shopping")
 
+
         display_date = date[0] if isinstance(date, list) and date else str(date or "")
         total = 0.0
         if total:
             try:
                 total = float(str(total).replace("$", "").strip())
-            except ValueError:
+            except ValueError as e:
+                st.write(e)
                 total = 0.0
 
         st.divider()
