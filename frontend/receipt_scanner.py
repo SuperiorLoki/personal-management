@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 import PIL.Image
 from google import genai
+from google.genai import types
 import pandas as pd
 
 
@@ -27,15 +28,21 @@ def scanner():
         client = genai.Client(api_key=api_key)
         img = PIL.Image.open(uploaded_file)
         st.image(img, caption="Uploaded Receipt", use_column_width=True)
+        prompt = """
+        You are an expert receipt analyzer for an expense tracking app. 
+        Analyze the attached receipt image and extract the key information.
+        
+        Return EXACTLY a valid JSON object with the following keys and no other text or markdown formatting:
+        
+        {
+            "amount": (The final grand total on the receipt as a float, e.g. 45.99. Do not include currency symbols),
+            "category": (You MUST categorize the purchase into exactly one of these strings: "Rent", "Food", "Shopping", "Entertainment", "Travel", "Other". Map grocery stores and restaurants to "Food", retail to "Shopping", flights/gas to "Travel", etc.),
+            "notes": (The name of the store or merchant. If not clearly visible, provide a 1-2 word summary of what was bought)
+        }
+        """
         response = client.models.generate_content(
             model="gemini-3.1-flash-lite-preview",
-            contents=[
-                """Extract store_name, date, and total_cost from this receipt as JSON. For total_cost, extract 
-                only numerical value. Default values of Unkown, 99/99/9999, and 0.00, if any values are missing. 
-                If the image is NOT a receipt (e.g., a person, a pet, or a random object), return only this 
-                JSON: {"error": "invalid_image"}""",
-                img
-            ]
+            contents=[prompt,img]
         )
         raw_text = response.text.strip().replace("```json", "").replace("```", "").strip()
 
@@ -109,31 +116,30 @@ def scanner():
                 else:
                     with st.spinner(f"Analyzing individual items and checking prices..."):
                         try:
+                            prompt = f"""You are an expert personal finance and shopping advisor. 
+                            Look at the individual items and prices listed on this receipt from {store or 'this store'}. 
+                            The user lives in or near: {location}.
+                            
+                            CRITICAL INSTRUCTIONS: 
+                            - You must provide factually accurate, hyper-local information. 
+                            - Do NOT guess or hallucinate store names. 
+                            - ONLY recommend alternative grocery chains or markets that you know for a fact operate in {location}.
+                            
+                            Please provide a clean, helpful analysis formatted in Markdown:
+                            1. **Price Evaluation:** Did they pay high, average, or low prices for these types of goods in {location}? Call out 1 or 2 specific items if they seem overpriced.
+                            2. **Accurate Local Alternatives:** Recommend 2 to 3 alternative stores geographically available in {location} where they could likely buy these same items for less. 
+                            3. **Actionable Tip:** Give 1 quick budgeting tip specific to saving money on these specific items next time.
+                            Keep the tone encouraging, concise, and easy to read."""
+                            
                             price_response = client.models.generate_content(
                                 model="gemini-3.1-flash-lite-preview",
-                                contents=[
-                                    f"""You are a concise, smart local shopping assistant. 
-                                    Read the individual items and prices on this receipt from {store or 'this store'}. 
-                                    The user lives in or near: {location}.
-                                    
-                                    Provide a brief, scannable Markdown response with NO introductory filler:
-                                    
-                                    1. **⚡ Quick Verdict:** 1 simple sentence stating if they overpaid for this area and naming the single most overpriced item on the receipt.
-                                    2. **📍 Where to Buy Cheaper in {location}:** A bulleted list of the top 2-3 alternative grocery stores or retail chains near them (e.g., Aldi, Trader Joe's, WinCo, Walmart, local markets). For each store, include:
-                                       - **The Store Name** (bolded)
-                                       - **What to buy there:** Which specific items from their receipt to switch to this store.
-                                       - **Estimated Price:** What those items typically cost there compared to what they just paid.
-                                    
-                                    Keep the entire response short, direct, and focused 100% on the local store alternatives.""",
-                                    img
-                                ]
+                                contents=[prompt,img],
+                                config=types.GenerateContentConfig(
+                                    tools=[{"google_search": {}}]
+                                )
                             )
+
                             st.info(f"**Local Market Analysis for**: {location}")
                             st.markdown(price_response.text)
                         except Exception as e:
                             st.error(f"Failed to generate price comparison: {e}")
-
-
-
-
-
