@@ -43,7 +43,7 @@ def main_screen():
                     notes = ""
                     #user = ""
 
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3, col4 = st.columns([2,2,3,1])
 
                 with col1:
                     if i == 0:
@@ -53,7 +53,7 @@ def main_screen():
                     if i == 0:
                         st.write("Category")
                     safe_index = categories.index(category) if category in categories else 2
-                    category_input = st.selectbox(label="Category", options=categories, index=categories.index(category), key=f"category_{i}_{selected_date}", label_visibility="collapsed")
+                    category_input = st.selectbox(label="Category", options=categories, index=safe_index, key=f"category_{i}_{selected_date}", label_visibility="collapsed")
                 '''
                 with col3:
                     if i == 0:
@@ -65,10 +65,16 @@ def main_screen():
                         st.write("Notes")
                     notes_input = st.text_input(label="Notes", value=notes, key=f"notes_{i}_{selected_date}", label_visibility="collapsed")
 
+                with col4:
+                    if i == 0:
+                        st.write("Delete")
+                    delete_input = st.checkbox("🗑️", key=f"delete_{i}_{selected_date}")
+
                 expenses.append({
                     'amount': amount_input,
                     'category': category_input,
                     'notes': notes_input,
+                    'delete': delete_input
                     #'users': user_input
                 })
             st.write("")
@@ -83,19 +89,23 @@ def main_screen():
                 st.rerun()
 
             if submit_button:
-                filtered_expenses = [expense for expense in expenses if expense['amount']>0.0]
-                if not filtered_expenses:
+
+                filtered_expenses = [expense for expense in expenses if expense['amount']>0.0 and not expense['delete']]
+
+                clean_payload = [
+                    {"amount": exp["amount"], "category": exp["category"], "notes": exp["notes"]} for exp in filtered_expenses]
+                if not clean_payload and len(existing_expenses) == 0:
                     st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
                     return
                 else:
-                    response = requests.post(f"{API_URL}/expenses/{selected_date}", json=filtered_expenses, headers=headers)
+                    response = requests.post(f"{API_URL}/expenses/{selected_date}", json=clean_payload, headers=headers)
                     if response.status_code == 200:
                         st.success("Expenses updated successfully.")
+                        st.rerun()
                     else:
                         st.error("Failed to update expenses.")
-                
-'''
 
+'''
 st.title("Expense Tracking System")
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner"])
 
