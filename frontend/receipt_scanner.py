@@ -108,6 +108,7 @@ def scanner():
                         st.error(f"Connection failed: {e}")
         with saver_tab:
             st.markdown("Did you overpay?")
+            st.write(data)
             st.write("Enter your location below. Our AI will re-examine the items and give you cheaper prices from other stores in your area!")
             col_loc, col_btn = st.columns([2,1])
             with col_loc:
