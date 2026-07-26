@@ -1,109 +1,118 @@
 import streamlit as st
+from datetime import datetime
 import requests
-from frontend.main_page import main_screen
-from frontend.analytics_ui import analytics
-from frontend.month_analytics import months
-from frontend.receipt_scanner import scanner
-from frontend.report_ui import report
-from frontend.chat_ui import ai_chat
-#from user_analytics import user_analytics
-
-col_left, col_center, col_right = st.columns([0.001, 150, 0.001])  # center is slightly wider
-#st.set_page_config(layout="centered")
-
-import streamlit as st
-from supabase import create_client
+import pandas as pd
 
 API_URL = "https://personal-management-1.onrender.com"
 
-if "token" not in st.session_state:
-    st.session_state["token"] = None 
-if "user_email" not in st.session_state:
-    st.session_state["user_email"] = None
+def main_screen():
+        
+        if "token" not in st.session_state:
+            st.warning("🔒 Please log in to view and add expenses.")
+            return
+        
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        selected_date = st.date_input("Enter Date", datetime.today(), label_visibility="collapsed")
+        response = requests.get(f"{API_URL}/expenses/{selected_date}", headers=headers)
+        if response.status_code == 200:
+            existing_expenses = response.json()
+        else:
+            st.error("Failed to retrieve expenses")
+            existing_expenses = []
 
-def auth_screen():
-    st.title("Welcome to AI Expense Tracker")
-    tab1, tab2 = st.tabs(["Login", "Sign Up"])
-    with tab1:
-        with st.form("Login_form"):
-            email = st.text_input("Email", key="login_email")
-            password = st.text_input("Password", type="password", key="login_password")
-            if st.form_submit_button("Login"):
-                with st.status("Booting up server... (This may take a while)", expanded=True) as status:
-                    st.write("Waking up backend...")
-                    st.write("Establishing database connection...")
-                    try:
-                        res = requests.post(f"{API_URL}/login", json={"email": email, "password": password})
-                        if res.status_code == 200:
-                            status.update(label="Server online! Logging you in...", state="complete", expanded=False)
-                            st.session_state["token"] = res.json()["access_token"]
-                            st.session_state["user_email"] = email
-                            st.success("Log In Success!")
+        row_state_key = f"row_count_{selected_date}"
+        if row_state_key not in st.session_state:
+            st.session_state[row_state_key] = max(5, len(existing_expenses))
+
+        row_count = st.session_state[row_state_key]
+        categories = ["Rent", "Food", "Shopping", "Entertainment", "Travel", "Other"]
+
+
+        #users = users_list()
+        expenses = []
+        with st.form(key=f"expense_form_{selected_date}"):
+            for i in range(row_count):
+                if i < len(existing_expenses):
+                    amount = existing_expenses[i]["amount"]
+                    category = existing_expenses[i]["category"]
+                    notes = existing_expenses[i]["notes"]
+                    #user = existing_expenses[i]["user"]
+                else:
+                    amount = 0.0
+                    category = "Shopping"
+                    notes = ""
+                    #user = ""
+
+                col1, col2, col3, col4 = st.columns([2,2,3,1])
+
+                with col1:
+                    if i == 0:
+                        st.write("Amount")
+                    amount_input = st.number_input(label="Amount", min_value=0.0, step=1.0, value=amount, key=f"amount_{i}_{selected_date}", label_visibility="collapsed")
+                with col2:
+                    if i == 0:
+                        st.write("Category")
+                    safe_index = categories.index(category) if category in categories else 2
+                    category_input = st.selectbox(label="Category", options=categories, index=safe_index, key=f"category_{i}_{selected_date}", label_visibility="collapsed")
+                '''
+                with col3:
+                    if i == 0:
+                        st.write("User")
+                    user_input = st.text_input(label="Users", value=user, key = f"user_{i}", label_visibility="collapsed")
+                '''
+                with col3:
+                    if i == 0:
+                        st.write("Notes")
+                    notes_input = st.text_input(label="Notes", value=notes, key=f"notes_{i}_{selected_date}", label_visibility="collapsed")
+
+                with col4:
+                    if i == 0:
+                        st.write("Delete")
+                    delete_input = st.checkbox("🗑️", key=f"delete_{i}_{selected_date}")
+
+                expenses.append({
+                    'amount': amount_input,
+                    'category': category_input,
+                    'notes': notes_input,
+                    'delete': delete_input
+                    #'users': user_input
+                })
+            st.write("")
+            col_button1, col_button2 = st.columns([1,3])
+            with col_button1:
+                add_row_button = st.form_submit_button("Add Row")
+            with col_button2:
+                submit_button = st.form_submit_button("Save Expenses", type="primary")
+            
+            if add_row_button:
+                st.session_state[row_state_key] += 1
+                st.rerun()
+
+            if submit_button:
+
+                filtered_expenses = [expense for expense in expenses if expense['amount']>0.0 and not expense['delete']]
+
+                clean_payload = [
+                    {"amount": exp["amount"], "category": exp["category"], "notes": exp["notes"]} for exp in filtered_expenses]
+                if not clean_payload and len(existing_expenses) == 0:
+                    st.warning("Please enter at least one expense with an amount greater than $0.00 before saving.")
+                    return
+                else:
+                    with st.spinner("Saving expenses to database..."):
+                        response = requests.post(f"{API_URL}/expenses/{selected_date}", json=clean_payload, headers=headers)
+                        if response.status_code == 200:
+                            st.success("Expenses updated successfully.")
+                            if row_state_key in st.session_state:
+                                del st.session_state[row_state_key]
                             st.rerun()
                         else:
-                            st.error("Invalid email or password.")
-                        
-                    except requests.exceptions.RequestException as e:
-                        status.update(label="Connection Error.", state="error", expanded=True)
-                        st.error("The server took too long to wake up. Please try clicking Login again!")
-    with tab2:
-        with st.form("signup_form"):
-            new_email = st.text_input("Email", key="signup_email")
-            new_password = st.text_input("Password", type="password", key="signup_password")
+                            st.error("Failed to update expenses.")
 
-            if st.form_submit_button("Create Account"):
-                with st.spinner("Creating account..."):
-                    res = requests.post(f"{API_URL}/register", json={"email": new_email, "password": new_password})
+'''
+st.title("Expense Tracking System")
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add/Update", "Analytics", "Month by Month Breakdown", "Report", "Scanner"])
 
-                    if res.status_code == 201:
-                        st.success("Account Created! Please switch to the Login tab to login.")
-                    else:
-                        st.error("Failed to create account. That email might already be registered.")
-
-if not st.session_state["token"]:
-    auth_screen()
-
-    st.stop()
-
-with st.sidebar:
-    st.write(f"Logged in as:\n**{st.session_state['user_email']}**")
-    if st.button("Logout"):
-        st.session_state["token"] = None
-        st.session_state["user_email"] = None
-        
-        st.rerun()
-
-
-st.sidebar.title("💳 Expense Tracker")
-page = st.sidebar.radio("Navigation", [
-    "Add/Update", 
-    "Analytics", 
-    "Month by Month Breakdown", 
-    "Report", 
-    "Scanner", 
-    "Chat with AI"
-])
-
-if page == "Add/Update":
+with tab1:
     main_screen()
-elif page == "Analytics":
-    analytics()
-elif page == "Month by Month Breakdown":
-    months()
-elif page == "Report":
-    report()
-elif page == "Scanner":
-    scanner()
-elif page == "Chat with AI":
-    ai_chat()
-
-
-
-# if side_tab == "Important URLs":
-#     st.title("Important Links")
-#     tab1, tab2 = st.tabs(["College", "Career"])
-#
-#     with tab1:
-#         st.subheader("UCSD Links")
-#     with tab2:
-#         st.subheader("Career-Related Links")
+with tab2:
+    analytics_ui()'''
